@@ -1,0 +1,156 @@
+---
+title: "Unit 3 Homework"
+author: "Bruce Lee"
+date: "1/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Question 1: GitHub Cloning
+
+```{r question_1 data, echo=TRUE}
+## Create directory
+# mkdir /Users/brucelee/Documents/SMU\ Data\ Science/Classes/DS\ 6306\ -\ Doing\ Data\ Science/Unit\ 3/AwesomePublicDatasets
+
+## Navigate to the appropriate directory
+# cd /Users/brucelee/Documents/SMU\ Data\ Science/Classes/DS\ 6306\ -\ Doing\ Data\ Science/Unit\ 3/AwesomePublicDatasets
+
+## Clone the repository to it
+# git clone https://github.com/caesar0301/awesome-public-datasets 
+```
+
+# Question 2
+
+```{r question_2 data, echo=TRUE}
+## a. Read in titanic.csv and assign it to df
+df <- read.csv('/Users/brucelee/Documents/SMU Data Science/Classes/DS 6306 - Doing Data Science/Unit 3/AwesomePublicDatasets/awesome-public-datasets/Datasets/titanic.csv')
+
+## b.	Output the respective count of females and males aboard the Titanic. Plot the frequency of females and males.  Be sure to give an accurate title and label the axes.
+maleOrFemale <- df$Sex
+
+numMales <- sum(maleOrFemale == "male")
+numMales
+
+numFemales <- sum(maleOrFemale == "female")
+numFemales
+
+types <- c("Males", "Females")
+totalPeople = sum(numMales, numFemales)
+freqMale <- 100*(numMales/totalPeople)
+freqFemale <- 100*(numFemales/totalPeople)
+maleFemaleFreq <- c(freqMale, freqFemale)
+totalFreq <- data.frame(types, maleFemaleFreq)
+barplot(totalFreq$maleFemaleFreq, names.arg = totalFreq$types, main = "Percent of Males to Females", xlab = "Sex", ylab = "Percent", ylim = c(0,100))
+
+## c.	Please use one apply function (to review: swirl() modules 11, 12) to output the means of Age, Fare, and Survival.  Make sure the output is a real number for all three means.
+otherColumns <- data.frame(df$Age, df$Fare, df$Survived)
+apply(otherColumns, 2, mean, na.rm = TRUE)
+
+```
+  
+
+# Question 3 Function Building
+```{r question_3 data, echo=TRUE}
+## Load Sleep Data
+sleepData <- read.csv('/Users/brucelee/Documents/SMU Data Science/Classes/DS 6306 - Doing Data Science/Unit 3/Live Session Assignment 3/sleep_data_01.csv')
+
+## Sleep Research Function
+sleepResearch <- function(dataset) {
+  ## a.	Create objects for the median Age, the minimum and maximum Duration of sleep, and the mean and standard deviation of the Rosenberg Self Esteem scale (RSES).
+  medianAge <- median(dataset$Age, na.rm = TRUE)
+  minDurationOfSleep <- min(dataset$Duration, na.rm = TRUE)
+  maxDurationOfSleep <- max(dataset$Duration, na.rm = TRUE)
+  meanRSES <- mean(dataset$RSES, na.rm = TRUE)
+  stdDevRSES <- sd(dataset$RSES, na.rm = TRUE)
+  
+  ## b.	Create a data.frame object called report: it should consist of the median age, the RSES mean and standard deviation respectively divided by five (since there are five questions and these scores are summed), and the range of Duration (the statistical definition of range; it should be a single number.)
+  rangeOfDuration <- maxDurationOfSleep - minDurationOfSleep
+  stdDevDiv5 <- stdDevRSES/5
+  report <- data.frame(medianAge, meanRSES, stdDevDiv5, rangeOfDuration)
+  
+  ## c.	Change the column names of this data.frame to MedianAge, SelfEsteem, SE_SD, and DurationRange.
+  names(report)[names(report)=="medianAge"] <- "MedianAge"
+  names(report)[names(report)=="meanRSES"] <- "SelfEsteem"
+  names(report)[names(report)=="stdDevDiv5"] <- "SE_SD"
+  names(report)[names(report)=="rangeOfDuration"] <- "DurationRange"
+  
+  ## d.	Round the report to at most 2 digits: leave this as the closing line to the function.
+  is.num <- sapply(report, is.numeric)
+  report[is.num] <- lapply(report[is.num], round, 2)
+}
+
+## e.	Finally, run the function on your sleep data to show the output.
+output <- sleepResearch(sleepData)
+output
+```
+
+# Question 4 - FiveThirtyEight Data
+
+```{r question_4 data, echo=TRUE}
+## a.	Install the fivethirtyeight package.
+##install.packages("fivethirtyeight")
+library(fivethirtyeight)
+
+## b.	In the listing of Data sets in package ‘fivethirtyeight,’ assign the 22nd data set to an object ‘df.’
+df <- data.frame(college_recent_grads)
+
+## c.	Use a more detailed list of the data sets to write out the URL in a comment to the related news story.
+vignette("college_recent_grads", package = "fivethirtyeight")
+
+## d.	Using R command(s), give the dimensions and column names of this data frame.
+dim(df)
+colnames(df)
+```
+
+# Question 5 - Data Summary
+
+```{r question_5 data, echo=TRUE}
+## a.	Write an R command that gives you the column names of the data frame.  Right after that, write one that counts the number of columns but not rows.  Hint: The number should match one of your numbers in Question 1d for dimensions.
+colnames(df)
+ncol(df)
+
+## b.	Generate a count of each unique major_category in the data frame.  I recommend using libraries to help.  To be clear, this should look like a matrix or data frame containing the major_category and the frequency it occurs in the dataset.  Assign it to major_count.
+list(unique(df$major_category))
+numEngineering <- length(which(df == "Engineering"))
+numBusiness <- length(which(df == "Business"))
+numPhysicalSciences <- length(which(df == "Physical Sciences"))
+numLawAndPublicPolicy <- length(which(df == "Law & Public Policy"))
+numComputersAndMathematics <- length(which(df == "Computers & Mathematics"))
+numAgricultureAndNaturalResources <- length(which(df == "Agriculture & Natural Resources"))
+numIndustrialArtsAndConsumerServices <- length(which(df == "Industrial Arts & Consumer Services"))
+numArts <- length(which(df == "Arts"))
+numSocialScience <- length(which(df == "Social Science"))
+numBiologyLifeScience <- length(which(df == "Biology & Life Science"))
+numEducation <- length(which(df == "Education"))
+numHumanitiesAndLiberalArts <- length(which(df == "Humanities & Liberal Arts"))
+numPsychologyAndSocialWork <- length(which(df == "Psychology & Social Work"))
+numCommunicationsJournalism <- length(which(df == "Communications & Journalism"))
+numInterdisciplinary <- length(which(df == "Interdisciplinary"))
+
+majorCategories <- c("Engineering", "Business", "Physical Sciences", "Law & Public Policy", "Computers & Mathematics", "Agriculture & Natural Resources", "Industrial Arts & Consumer Services", "Arts", "Health", "Social Science", "Biology & Life Science", "Humanities & Liberal Arts", "Psychology & Social Work", "Communications & Journalism", "Interdisciplinary")
+
+majorFrequency <- c(numEngineering, numBusiness, numPhysicalSciences, numLawAndPublicPolicy, numComputersAndMathematics, numAgricultureAndNaturalResources, numIndustrialArtsAndConsumerServices, numArts, numSocialScience, numBiologyLifeScience, numEducation, numHumanitiesAndLiberalArts, numPsychologyAndSocialWork, numCommunicationsJournalism, numInterdisciplinary)
+
+major_count <- data.frame(majorCategories, majorFrequency)
+
+
+## c.	To make things easier to read, put par(las=2) before your plot to make the text perpendicular to the axis.  Make a barplot of major_count.  Make sure to label the title with something informative (check the vignette if you need), label the x and y axis, and make it any color other than grey.  Assign the major_category labels to their respective bar.  Flip the barplot horizontally so that bars extend to the right, not upward.  All of these options can be done in a single pass of barplot(). Note: It’s okay if it’s wider than the preview pane.
+par(las=2)
+## Adjust margins for labels
+par(mar = c(5, 15, 5, 5))
+barplot(major_count$majorFrequency, names.arg = major_count$majorCategories, xlab = "Frequency", ylab = "", main = "The Frequency of College Major Categories Selected", horiz = TRUE, cex.names = 0.75, col="blue")
+par(las=0)
+mtext("Major Category", side=2, line=12, par(las=3))
+
+
+
+## d.	Write the fivethirtyeight data to a csv file.  Make sure that it does not have row labels.
+
+write.csv(df, file="fivethirtyeightdata.csv", row.names = FALSE)
+```
+
+# Question 6 - Codebook
+
+Link to my Homework repository:https://github.com/BruceLeeSMU/Homework
