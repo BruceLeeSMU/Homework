@@ -1,0 +1,83 @@
+---
+title: "Unit 5 Homework"
+author: "Bruce Lee"
+date: "2/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Question 1: Data Munging
+
+```{r question_1 data, echo=TRUE}
+library(rvest)
+library(stringr)
+library(dplyr)
+library(tidyr)
+
+## 1a. Import the .txt file
+df <- read.table("yob2016.txt")
+## Separate the data into three human-readable columns: Name, Sex, AmtOfChildren
+df <- separate(df,"V1", into = c("Name", "Sex", "AmtOfChildren"), sep = ";")  
+
+## 1b. Display the summary and structure of df
+summary(df)
+str(df)
+
+## 1c. Find the name misspelled name that has three y's
+grep("yyy", df$Name, value = TRUE)
+
+## 1d. Remove the misspelled name
+y2016 <- df %>% dplyr::filter(!grepl('Fionayyy', Name))
+
+```
+
+# Question 2 : Data Merging
+
+```{r question_2 data, echo=TRUE}
+## 2a. Import the text file and give human-readable columns
+names2015 <- read.table("yob2015.txt")
+y2015 <- separate(names2015,"V1", into = c("Name", "Sex", "AmtOfChildren"), sep = ",")
+
+## 2b. Display the last ten rows
+tail(y2015, 10)
+
+## One thing interesting about the last 10 rows are that they are all male names
+
+## 2c. Merge y2016 and y2015 by the Name column and assign it to final
+final <- merge(y2016, y2015, by = "Name")
+
+## Ensure there are no values of NA in either of my AmtOfChildren columns
+grep("NA", final$AmtOfChildren.x, value = TRUE)
+grep("NA", final$AmtOfChildren.y, value = TRUE)
+
+```
+
+# Question 3 : Data Summary
+
+```{r question_3 data, echo=TRUE}
+## 3a. Create a new column Total
+final$Total <- c(as.numeric(final$AmtOfChildren.x) + as.numeric(final$AmtOfChildren.y))
+## Find out how many people were given popular names in 2015 and 2016, so get the sum of the Totals column
+colSums(Filter(is.numeric, final))
+
+## 3b. Sort the data by Total and what are the top 10 most popular names
+final.sorted <- final[order(final$Total, decreasing = TRUE),] 
+head(final.sorted, 10)
+
+## 3c. Give the top 10 most popular girl's names
+top.girls.names <- final.sorted[grep("^F",final.sorted$Sex.x),]
+head(top.girls.names, 10)
+
+## 3d. Write these top 10 girls name to a CSV file with just the names and total
+top.10.girls.names <- data.frame(top.girls.names$Name, top.girls.names$Total)
+names(top.10.girls.names) <- c("Name", "Total")
+write.csv(top.10.girls.names, "top10girlsnames.csv")
+
+```
+
+# 4. Upload to Github
+## A copy of the homework assignment can be found at: https://github.com/BruceLeeSMU/Homework/tree/master/DS6306
+
+  
